@@ -27,16 +27,24 @@ function performRequest(requestArray) {
   requestArray.forEach(function(value, key, array) {
     request.get(value, {
         headers: {
+          'content-type':'application/json',
           'accept-encoding': 'gzip, deflate, sdch, br',
           'accept-language': 'en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4',
           'accept-version': 'v1',
           'authorization': 'Client-ID d69927c7ea5c770fa2ce9a2f1e3589bd896454f7068f689d8e41a25b54fa6042'
-        }
+        },
+        encoding: null
       },function(error, response, body) {
         if (error) {
           return console.log(chalk.red('==Error==: '), error);
         }
 
+        zlib.unzip(body, function(err, result) {
+          if (error) {
+            return console.log('unzip error', error);
+          }
+          console.log('result: ', result.toString('utf-8'));
+        });
       });
   });
 }
