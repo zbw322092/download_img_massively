@@ -14,6 +14,7 @@
   "author": "Bowen Zhong",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.5.0",
     "chalk": "^1.1.3",
     "download": "^6.2.3",
     "request": "^2.81.0"

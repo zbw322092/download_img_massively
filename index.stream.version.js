@@ -1,4 +1,12 @@
+// organiseRequestUrlList
+//   callback => performRequest
+//     pipe transform => imgRequestUrlList
+//       pipe => performImgRequest
+//        pipe => download
+
 const fs = require('fs');
+const Transform = require('stream').Transform;
+var util = require('util');
 const zlib = require('zlib');
 const request = require('request');
 const download = require('download');
@@ -21,14 +29,14 @@ function pageRequestList(startPage, endPage, pageSize, orderBy) {
     let requestUrlTemplate = `https://unsplash.com/napi/photos?page=${page}&per_page=${size}&order_by=${orderBy}`;
     requestArray.push(requestUrlTemplate);
   }
-  console.log('requestArray: ', requestArray);
-  return requestArray;
+  
+  performPageRequest(requestArray);
 }
 
 function performPageRequest(requestArray) {
   if (requestArray.length === 0) return;
-  requestArray.forEach(function (value, key, array) {
-    request.get(value, {
+  return requestArray.forEach(function (value, key, array) {
+    return request.get(value, {
       headers: {
         'content-type': 'application/json',
         'accept-encoding': 'gzip, deflate, sdch, br',
@@ -36,43 +44,15 @@ function performPageRequest(requestArray) {
         'accept-version': 'v1',
         'authorization': 'Client-ID d69927c7ea5c770fa2ce9a2f1e3589bd896454f7068f689d8e41a25b54fa6042'
       },
-      encoding: null
-    }, function (error, response, body) {
-      if (error) {
-        return console.log(chalk.red('==Error==: '), error);
-      }
-
-      return getPicUrlList(body);
-    });
+      encoding: 'utf-8'
+    })
+    .pipe(zlib.createGunzip())
+    .pipe(process.stdout);
   });
 }
 
-function getPicUrlList(res) {
-  var picUrlList = [];
-  zlib.unzip(res, function (error, result) {
-    if (error) {
-      return console.log('unzip error', error);
-    }
-    result = JSON.parse(result.toString('utf-8'));
-    result.forEach(function(value, key, array) {
-      picUrlList.push({
-        id: value.id,
-        url: value.links.download
-      });
-    });
-    console.log(picUrlList);
-    downloadPics(picUrlList);
-  });
-}
 
-function downloadPics(urlList) {
-  urlList.forEach((value, key, array) => {
-    download(value.url)
-      .pipe(fs.createWriteStream(dist + value.id))
-      .on('close', () => {
-        console.log('Img ' + chalk.green(value.id) + ' has been downloaded');
-      });
-  });
-}
 
-performPageRequest(pageRequestList(1, 2, 12, 'latest'));
+
+pageRequestList(1,1,12,'lastest');
+
