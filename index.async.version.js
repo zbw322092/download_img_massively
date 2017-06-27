@@ -81,4 +81,6 @@ async.waterfall([
   performPageRequest,
   getPicUrlList, 
   downloadPics
-], (err, result) => {});
+], (err, result) => {
+  console.log(chalk.green('Image Download is Processing'));
+});
