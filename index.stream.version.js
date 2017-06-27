@@ -1,12 +1,8 @@
 const fs = require('fs');
-const Writeable = require('stream').Writeable;
-const Transform = require('stream').Transform;
-var util = require('util');
 const zlib = require('zlib');
 const request = require('request');
 const download = require('download');
 const chalk = require('chalk');
-const through2 = require('through2');
 const concat = require('concat-stream');
 
 let dist = './downloaded_imgs/';
@@ -32,9 +28,7 @@ function pageRequestList(startPage, endPage, pageSize, orderBy) {
 }
 
 let picUrlList = [];
-let concatAndOrganiseResponse = concat({
-  encoding: 'string'
-}, function (data) {
+let concatAndOrganiseResponse = concat({encoding: 'string'}, function (data) {
   let response = JSON.parse(data.toString());
 
   response.forEach(function (value, key, array) {
